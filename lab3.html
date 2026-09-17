@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Лабораторна робота 3 - JavaScript & DOM (Варіант 1)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-100 font-sans text-slate-800">
+
+    <!-- Головний каркас сторінки (зберігаємо бокове меню з минулої лабораторної) -->
+    <div class="min-h-screen flex flex-col md:flex-row">
+        
+        <!-- ЛІВЕ ФІКСОВАНЕ БОКОВЕ МЕНЮ -->
+        <aside class="w-full md:w-72 bg-slate-900 text-white md:fixed md:h-screen p-6 flex flex-col justify-between shadow-xl z-10">
+            <div>
+                <div class="text-3xl font-black tracking-widest text-indigo-400 mb-8 border-b border-slate-800 pb-4">
+                    LOGO
+                </div>
+                <nav class="flex flex-col space-y-1.5">
+                    <a href="#section1" class="px-3 py-2 rounded-lg text-sm font-medium bg-slate-800 text-indigo-300 hover:bg-slate-700 transition">Section 1: Форма покупок</a>
+                    <a href="#section2" class="px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition">Section 2: Список покупок</a>
+                    <a href="#section3" class="px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition">Section 3</a>
+                    <a href="#section4" class="px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition">Section 4</a>
+                </nav>
+            </div>
+            <div class="pt-4 border-t border-slate-800 text-xs text-slate-500">
+                &copy; 2026 ІПЗ-31 | Lab 3 JS
+            </div>
+        </aside>
+
+        <!-- ПРАВА ЧАСТИНА (ОСНОВНИЙ КОНТЕНТ) -->
+        <main class="flex-1 md:ml-72 p-6 md:p-12">
+            
+            <header class="mb-8">
+                <h1 class="text-4xl text-blue-600 font-bold mb-2">Лабораторна робота №3</h1>
+                <p class="text-base leading-normal text-slate-600">Робота з DOM, подіями та динамічним списком покупок у JavaScript.</p>
+            </header>
+
+            <!-- ДВОКОЛОНКОВА СІТКА ДЛЯ СЕКЦІЙ ВАРІАНТУ 1 -->
+            <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 items-start">
+                
+                <!-- СЕКЦІЯ 1: ФОРМА ДОДАВАННЯ ПОКУПКИ -->
+                <section id="section1" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="text-xs font-bold uppercase tracking-wider bg-indigo-50 text-indigo-600 px-3 py-1 rounded-full">Форма</span>
+                    </div>
+                    <h2 class="text-xl font-bold text-slate-900 mb-4">Додати нову покупку</h2>
+                    
+                    <form id="purchase-form" class="space-y-4">
+                        <!-- Назва покупки -->
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-1">Назва покупки</label>
+                            <input type="text" id="item-name" required placeholder="Наприклад: Ноутбук" 
+                                class="w-full px-4 py-2 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-base">
+                        </div>
+
+                        <!-- Вартість -->
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-1">Вартість (грн)</label>
+                            <input type="number" id="item-price" required min="0" step="0.01" placeholder="Наприклад: 25000" 
+                                class="w-full px-4 py-2 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-base">
+                        </div>
+
+                        <!-- Випадаючий список з категоріями/зображеннями -->
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-1">Категорія / Зображення</label>
+                            <select id="item-category" class="w-full px-4 py-2 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-base bg-white">
+                                <option value="electronics">💻 Електроніка</option>
+                                <option value="food">🛒 Продукти харчування</option>
+                                <option value="clothes">👕 Одяг</option>
+                                <option value="books">📚 Книги</option>
+                            </select>
+                        </div>
+
+                        <!-- Кнопка відправки (згідно з вимогами: bg-green-500, text-white, p-2, rounded-lg, hover:bg-green-700) -->
+                        <button type="submit" class="w-full bg-green-500 text-white p-2 rounded-lg hover:bg-green-700 font-semibold transition shadow-md">
+                            Додати покупку
+                        </button>
+                    </form>
+                </section>
+
+                <!-- СЕКЦІЯ 2: СПИСОК ПОКУПОК ТА ІНФОРМАЦІЙНИЙ БЛОК -->
+                <section id="section2" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="text-xs font-bold uppercase tracking-wider bg-emerald-50 text-emerald-600 px-3 py-1 rounded-full">Список</span>
+                    </div>
+                    <h2 class="text-xl font-bold text-slate-900 mb-4">Ваші покупки</h2>
+
+                    <!-- ІНФОРМАЦІЙНИЙ БЛОК (кількість та загальна вартість) -->
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 mb-6 flex justify-between items-center">
+                        <div>
+                            <p class="text-sm text-slate-500">Всього товарів:</p>
+                            <span id="total-count" class="text-2xl font-bold text-slate-900">0</span>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-sm text-slate-500">Загальна вартість:</p>
+                            <span id="total-price" class="text-2xl font-bold text-emerald-600">0.00 грн</span>
+                        </div>
+                    </div>
+
+                    <!-- Контейнер куди JS додаватиме блоки покупок -->
+                    <div id="purchases-list" class="space-y-3 max-h-[400px] overflow-y-auto pr-1">
+                        <p id="empty-message" class="text-slate-400 text-center py-8">Список покупок поки порожній...</p>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- JAVASCRIPT ЛОГІКА ДЛЯ ЛАБОРАТОРНОЇ РОБОТИ №3 -->
+    <script>
+        // Словник іконок/зображень для категорій
+        const categoryImages = {
+            electronics: "💻",
+            food: "🛒",
+            clothes: "👕",
+            books: "📚"
+        };
+
+        const categoryNames = {
+            electronics: "Електроніка",
+            food: "Продукти харчування",
+            clothes: "Одяг",
+            books: "Книги"
+        };
+
+        // Масив для збереження покупок
+        let purchases = [];
+
+        const form = document.getElementById('purchase-form');
+        const nameInput = document.getElementById('item-name');
+        const priceInput = document.getElementById('item-price');
+        const categorySelect = document.getElementById('item-category');
+        const purchasesList = document.getElementById('purchases-list');
+        const emptyMessage = document.getElementById('empty-message');
+        const totalCountEl = document.getElementById('total-count');
+        const totalPriceEl = document.getElementById('total-price');
+
+        // Функція оновлення інформаційного блоку та списку
+        function updateUI() {
+            purchasesList.innerHTML = '';
+
+            if (purchases.length === 0) {
+                purchasesList.appendChild(emptyMessage);
+                totalCountEl.innerText = '0';
+                totalPriceEl.innerText = '0.00 грн';
+                return;
+            }
+
+            let sum = 0;
+
+            purchases.forEach((item, index) => {
+                sum += item.price;
+
+                // Створення HTML-блоку для кожної покупки
+                const card = document.createElement('div');
+                card.className = "flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-200 transition hover:shadow-sm";
+                
+                card.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <span class="text-2xl p-2 bg-white rounded-lg shadow-xs">${categoryImages[item.category]}</span>
+                        <div>
+                            <h4 class="font-bold text-slate-900">${item.name}</h4>
+                            <p class="text-xs text-slate-500">${categoryNames[item.category]}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <span class="font-bold text-emerald-600">${item.price.toFixed(2)} грн</span>
+                        <button onclick="deletePurchase(${index})" class="bg-rose-100 text-rose-600 hover:bg-rose-500 hover:text-white px-3 py-1.5 rounded-lg text-sm font-semibold transition">
+                            Видалити
+                        </button>
+                    </div>
+                `;
+
+                purchasesList.appendChild(card);
+            });
+
+            totalCountEl.innerText = purchases.length;
+            totalPriceEl.innerText = sum.toFixed(2) + ' грн';
+        }
+
+        // Обробка події відправки форми (з використанням preventDefault)
+        form.addEventListener('submit', function(event) {
+            event.preventDefault(); // Запобігаємо перезавантаженню сторінки
+
+            const name = nameInput.value.trim();
+            const price = parseFloat(priceInput.value);
+            const category = categorySelect.value;
+
+            if (name && !isNaN(price)) {
+                // Додаємо новий об'єкт покупки в масив
+                purchases.push({ name, price, category });
+
+                // Очищуємо поля введення автоматично
+                nameInput.value = '';
+                priceInput.value = '';
+                categorySelect.selectedIndex = 0;
+
+                // Оновлюємо інтерфейс
+                updateUI();
+            }
+        });
+
+        // Функція видалення покупки за індексом
+        function deletePurchase(index) {
+            purchases.splice(index, 1);
+            updateUI();
+        }
+    </script>
+
+</body>
+</html>
